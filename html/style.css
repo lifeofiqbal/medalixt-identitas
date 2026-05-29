@@ -1,0 +1,122 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+@font-face {
+    font-family: 'MomoSignature';
+    src: url('font/MomoSignature-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    user-select: none;
+    overflow: hidden;
+    background-color: transparent;
+}
+
+
+#ktp-container {
+    display: none; 
+    position: absolute;
+    top: 50%;
+    right: 20px;
+    transform: translateY(-50%); 
+    width: 388px; 
+    height: 256px;  
+    border-radius: 10px; 
+    box-shadow: 0 5px 16px rgba(0,0,0,0.28);
+    overflow: hidden;
+}
+
+
+#background-layers { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
+#content-layers { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; color: #fff; }
+#ktp-bg-img { position: absolute; width: 100%; height: 100%; opacity: 1; }
+#ktp-container.card-ktp #content-layers { color: #fff; }
+#ktp-container.card-ktp .pejabat-signature { color: #fff; }
+#ktp-container:not(.card-ktp) #ktp-bg-img { display: none; }
+#ktp-container.card-ktp #background-layers { background: transparent; }
+#ktp-container.card-police #background-layers { background: url('img/kta_police_background.png') center/cover; }
+#ktp-container.card-ambulance #background-layers { background: url('img/kta_ambulance_background.png') center/cover; }
+#ktp-container.card-mechanic #background-layers { background: url('img/kta_mechanic_background.png') center/cover; }
+#ktp-container.card-trader #background-layers { background: url('img/kta_pedagang_background.png') center/cover; }
+#ktp-container.card-government #background-layers { background: url('img/kta_government_background.png') center/cover; }
+#ktp-container.card-judge #background-layers { background: url('img/kta_judge_background.png') center/cover; }
+#ktp-container.card-lawyer #background-layers { background: url('img/kta_lawyer_background.png') center/cover; }
+.card-ktp .ktp-only { display: block; }
+.card-ktp .rank-only { display: none; }
+#ktp-container:not(.card-ktp) .ktp-only { display: none; }
+#ktp-container:not(.card-ktp) .rank-only { display: block; }
+#ktp-container:not(.card-ktp) #pejabat-container { display: none; }
+.header-prov, .header-kota { text-align: center; font-weight: 700; margin: 0; text-shadow: 1px 1px 2px rgba(255,255,255,0.5); position: absolute; width: 100%; }
+.header-prov { top: 12px; font-size: 13px; letter-spacing: 1px; } 
+.header-kota { top: 28px; font-size: 12px; } 
+
+.field { position: absolute; left: 18px; margin: 0; white-space: nowrap; } 
+.field span:first-child { display: inline-block; width: 98px; font-weight: 500; } 
+#nama-value, #ttl-value, #gender-value, #pekerjaan-value, #kewarganegaraan-value, #berlaku-value { text-transform: uppercase; font-weight: 700; }
+#nik-label { top: 58px; font-size: 12px; font-weight: 700; }
+#nik-label span#nik-value { letter-spacing: 1px; }
+#nama-label { top: 76px; font-size: 11px; width: 310px; }
+#ttl-label { top: 94px; font-size: 11px; }
+#gender-label { top: 112px; font-size: 11px; }
+#rank-label { top: 130px; left: 18px; font-size: 11px; width: 310px; }
+#pekerjaan-label { top: 130px; font-size: 11px; }
+#kewarganegaraan-label { top: 148px; font-size: 11px; }
+#berlakuhingga-label { top: 166px; font-size: 11px; }
+#issuer-signature-container { position: absolute; top: 188px; right: 18px; width: 92px; text-align: center; }
+.signature-value { margin: 0; font-family: 'MomoSignature', cursive; font-size: 18px; line-height: 1.1; color: #ffffff; font-weight: normal; }
+.has-ttl .ttl-only { display: block; }
+.card-trader .ttl-only { display: none; }
+.card-mechanic .ttl-only { display: none; }
+.card-government .ttl-only { display: none; }
+.card-judge .ttl-only { display: none; }
+.card-lawyer .ttl-only { display: none; }
+
+
+#foto-container {
+    position: absolute;
+    top: 58px;    
+    right: 18px;   
+    width: 92px;   
+    height: 118px; 
+    border: 2px solid #fff;
+    box-shadow: 0 0 6px rgba(0,0,0,0.35);
+    background-color: #e0e0e0;
+}
+#foto-value { width: 100%; height: 100%; object-fit: cover; }
+
+#pejabat-container {
+    position: absolute;
+    right: 18px;   
+    bottom: 10px;   
+    width: 92px;  
+    text-align: center;
+}
+.pejabat-kota, .pejabat-jabatan, .pejabat-nama, .pejabat-signature { font-size: 8px; margin: 0; line-height: 1.2; }
+.pejabat-jabatan { font-weight: 700; }
+.pejabat-signature {
+    font-family: 'MomoSignature', cursive;
+    font-size: 16px;
+    margin: 8px 0 2px;
+    letter-spacing: 0.5px;
+    color: #ffffff;
+    font-weight: normal;
+    font-style: normal;
+}
+.signature-value {
+    font-family: 'MomoSignature', cursive;
+    font-size: 18px;
+    line-height: 1.1;
+    color: #ffffff;
+    margin: 0;
+    font-weight: normal;
+    font-style: normal;
+}
+.pejabat-nama { font-weight: 700; text-decoration: underline; }
+
+#berlaku-value.expired {
+    color: #d93434;
+    font-weight: 700;
+    text-shadow: 0 0 5px rgba(255, 0, 0, 0.5);
+}

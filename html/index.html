@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link href="style.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+    <div id="ktp-container">
+        <div id="background-layers">
+            <img src="img/ktp_background.png" id="ktp-bg-img" alt="Latar KTP">
+        </div>
+        <div id="content-layers">
+            <p class="header-prov" id="card-header">KARTU TANDA PENDUDUK</p>
+            <p class="header-kota" id="card-subtitle">HELHEIM</p>
+            <p class="field" id="nik-label"><span>NIK</span>: <span id="nik-value"></span></p>
+            <p class="field" id="nama-label"><span>NAMA</span>: <span id="nama-value"></span></p>
+            <p class="field" id="ttl-label"><span>TTL</span>: <span id="ttl-value"></span></p>
+            <p class="field" id="gender-label"><span>JENIS KELAMIN</span>: <span id="gender-value"></span></p>
+            <p class="field rank-only" id="rank-label"><span>PANGKAT</span>: <span id="rank-value"></span></p>
+            <p class="field ktp-only" id="pekerjaan-label"><span>PEKERJAAN</span>: <span id="pekerjaan-value"></span></p>
+            <p class="field ktp-only" id="kewarganegaraan-label"><span>NATIONALITY</span>: <span id="kewarganegaraan-value"></span></p>
+            <p class="field ktp-only" id="berlakuhingga-label"><span>BERLAKU HINGGA</span>: <span id="berlaku-value"></span></p>
+            <div id="foto-container"><img id="foto-value" src="" alt="Pas Foto" onerror="this.onerror=null; this.src='img/default_profile.png';"></div>
+            <div id="issuer-signature-container" class="rank-only">
+                <p class="signature-value" id="issuer-signature-value">---</p>
+            </div>
+            <div id="pejabat-container">
+                <p class="pejabat-jabatan" id="pejabat-jabatan">PETUGAS</p>
+                <p class="pejabat-signature" id="pejabat-signature">ADMIN</p>
+                <p class="pejabat-nama" id="pejabat-nama">ADMIN</p>
+            </div>
+        </div>
+    </div>
+    <script src="script.js" type="text/javascript"></script>
+</body>
+</html>
