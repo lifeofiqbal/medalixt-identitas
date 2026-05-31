@@ -37,6 +37,7 @@ body {
 #ktp-container:not(.card-ktp) #ktp-bg-img { display: none; }
 #ktp-container.card-ktp #background-layers { background: transparent; }
 #ktp-container.card-police #background-layers { background: url('img/kta_police_background.png') center/cover; }
+#ktp-container.card-weapon_license #background-layers { background: url('img/lisensi_senjata.png') center/cover; }
 #ktp-container.card-ambulance #background-layers { background: url('img/kta_ambulance_background.png') center/cover; }
 #ktp-container.card-mechanic #background-layers { background: url('img/kta_mechanic_background.png') center/cover; }
 #ktp-container.card-trader #background-layers { background: url('img/kta_pedagang_background.png') center/cover; }
@@ -48,6 +49,12 @@ body {
 #ktp-container:not(.card-ktp) .ktp-only { display: none; }
 #ktp-container:not(.card-ktp) .rank-only { display: block; }
 #ktp-container:not(.card-ktp) #pejabat-container { display: none; }
+#ktp-container .valid-until { display: none; }
+#ktp-container.card-ktp .valid-until,
+#ktp-container.card-weapon_license .valid-until { display: block; }
+#ktp-container.card-weapon_license .rank-only,
+#ktp-container.card-weapon_license #issuer-signature-container { display: none; }
+#ktp-container.card-weapon_license #content-layers { color: #ffffff; }
 .header-prov, .header-kota { text-align: center; font-weight: 700; margin: 0; text-shadow: 1px 1px 2px rgba(255,255,255,0.5); position: absolute; width: 100%; }
 .header-prov { top: 12px; font-size: 13px; letter-spacing: 1px; } 
 .header-kota { top: 28px; font-size: 12px; } 
@@ -64,6 +71,7 @@ body {
 #pekerjaan-label { top: 130px; font-size: 11px; }
 #kewarganegaraan-label { top: 148px; font-size: 11px; }
 #berlakuhingga-label { top: 166px; font-size: 11px; }
+#ktp-container.card-weapon_license #berlakuhingga-label { top: 130px; }
 #issuer-signature-container { position: absolute; top: 188px; right: 18px; width: 92px; text-align: center; }
 .signature-value { margin: 0; font-family: 'MomoSignature', cursive; font-size: 18px; line-height: 1.1; color: #ffffff; font-weight: normal; }
 .has-ttl .ttl-only { display: block; }

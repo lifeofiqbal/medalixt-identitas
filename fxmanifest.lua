@@ -8,7 +8,10 @@ shared_scripts {
     'config.lua'
 }
 
-dependency 'ox_lib'
+dependencies {
+    'ox_lib',
+    'ox_inventory'
+}
 
 server_scripts {
     'server.lua'

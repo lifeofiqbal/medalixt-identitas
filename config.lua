@@ -4,8 +4,11 @@ Config.BiayaKTP = 50000
 Config.BiayaPerpanjangPerBulan = 25000
 Config.MasaBerlakuKTP = 30 
 Config.BiayaPraKerja = 500 
+Config.PerpanjangLisensiSenjataHari = 7
+Config.CooldownPerpanjangLisensiSenjataHari = 7
 Config.CardTypes = {
     police = { label = 'POLICE', itemName = 'kta_police' },
+    weapon_license = { label = 'LISENSI SENJATA', itemName = 'lisensi_senjata' },
     ambulance = { label = 'AMBULANCE', itemName = 'kta_ambulance' },
     mechanic = { label = 'MEKANIK', itemName = 'kta_mechanic' },
     pedagang = { label = 'PEDAGANG', itemName = 'kta_pedagang' },

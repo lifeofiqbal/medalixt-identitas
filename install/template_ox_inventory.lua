@@ -69,4 +69,15 @@ return {
         stack = false,
         description = 'Kartu tanda anggota resmi kementerian kehakiman.'
     },
+    ['lisensi_senjata'] = {
+        name = 'lisensi_senjata',
+        label = 'Lisensi Senjata',
+        weight = 50,
+        width = 1,
+        height = 1,
+        rarity = 'rare',
+        stack = false,
+        degrade = 10080,
+        description = 'Lisensi resmi untuk memiliki dan menggunakan senjata api tertentu'
+    },
 }

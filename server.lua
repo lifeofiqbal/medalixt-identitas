@@ -1,6 +1,51 @@
 local QBCore = exports['qb-core']:GetCoreObject()
 local PlayerCooldowns = {}
 
+local function IsValidDateString(dateString)
+    if type(dateString) ~= 'string' then return false end
+    local y, m, d = string.match(dateString, "^(%d%d%d%d)%-(%d%d)%-(%d%d)$")
+    y, m, d = tonumber(y), tonumber(m), tonumber(d)
+    if not y or not m or not d then return false end
+    local timestamp = os.time({ year = y, month = m, day = d, hour = 12 })
+    if not timestamp then return false end
+    local normalized = os.date("*t", timestamp)
+    return normalized.year == y and normalized.month == m and normalized.day == d
+end
+
+local function AddDaysToDate(dateString, days)
+    local y, m, d = string.match(dateString or '', "^(%d+)%-(%d+)%-(%d+)$")
+    y, m, d = tonumber(y), tonumber(m), tonumber(d)
+    if not y or not m or not d then
+        local now = os.date("*t")
+        y, m, d = now.year, now.month, now.day
+    end
+
+    local timestamp = os.time({ year = y, month = m, day = d, hour = 12 }) + ((tonumber(days) or 0) * 86400)
+    return os.date("%Y-%m-%d", timestamp)
+end
+
+local function DateStringToTimestamp(dateString)
+    if not IsValidDateString(dateString) then return nil end
+    local y, m, d = string.match(dateString, "^(%d+)%-(%d+)%-(%d+)$")
+    return os.time({ year = tonumber(y), month = tonumber(m), day = tonumber(d), hour = 23, min = 59, sec = 59 })
+end
+
+local function TodayString()
+    return os.date("%Y-%m-%d")
+end
+
+local function RefreshWeaponLicenseItem(targetId, expiresDate)
+    local itemName = Config.CardTypes.weapon_license.itemName
+    local durability = DateStringToTimestamp(expiresDate) or os.time()
+    local slots = exports.ox_inventory:GetSlotIdsWithItem(targetId, itemName)
+
+    if slots and slots[1] then
+        exports.ox_inventory:SetDurability(targetId, slots[1], durability)
+    else
+        exports.ox_inventory:AddItem(targetId, itemName, 1, { durability = durability })
+    end
+end
+
 local function NormalizeKtpMetadata(metadata)
     if not metadata then
         return { ktp = nil, licenses = {} }
@@ -145,6 +190,11 @@ RegisterNetEvent('medalixt_identitas:server:buatKartuAnggota', function(targetId
         return
     end
 
+    if cardType == 'weapon_license' then
+        TriggerClientEvent('QBCore:Notify', src, "Gunakan menu lisensi senjata khusus polisi.", "error")
+        return
+    end
+
     local petugasJob = Petugas.PlayerData.job.name
     if petugasJob ~= 'government' then
         local allowedCardType = Config.JobCardTypes[petugasJob]
@@ -190,6 +240,115 @@ RegisterNetEvent('medalixt_identitas:server:buatKartuAnggota', function(targetId
 
     TriggerClientEvent('QBCore:Notify', src, "Kartu " .. ktpData.cardLabel .. " untuk " .. ktpData.nama .. " berhasil dibuat.", "success")
     TriggerClientEvent('QBCore:Notify', targetId, "Kartu Anda telah dibuat oleh petugas.", "success")
+end)
+
+RegisterNetEvent('medalixt_identitas:server:buatLisensiSenjata', function(targetId, fotoUrl, expiresDate)
+    local src = source
+    local Petugas = QBCore.Functions.GetPlayer(src)
+    if not Petugas or Petugas.PlayerData.job.name ~= 'police' then return end
+
+    if not IsValidDateString(expiresDate) then
+        TriggerClientEvent('QBCore:Notify', src, "Format tanggal salah. Gunakan YYYY-MM-DD.", "error")
+        return
+    end
+
+    local Warga = QBCore.Functions.GetPlayer(targetId)
+    if not Warga then
+        TriggerClientEvent('QBCore:Notify', src, "ID Warga tidak ditemukan.", "error")
+        return
+    end
+
+    if #(GetEntityCoords(GetPlayerPed(src)) - GetEntityCoords(GetPlayerPed(targetId))) > 5.0 then
+        TriggerClientEvent('QBCore:Notify', src, "Warga terlalu jauh.", "error")
+        return
+    end
+
+    local existingMetadata = NormalizeKtpMetadata(Warga.PlayerData.metadata.ktpdata)
+    local ktpData = existingMetadata.ktp
+    if not fotoUrl or fotoUrl == '' then
+        fotoUrl = ktpData and ktpData.fotourl
+    end
+    if not fotoUrl or fotoUrl == '' then
+        TriggerClientEvent('QBCore:Notify', src, "Foto warga tidak ditemukan. Isi URL foto atau buat KTP warga terlebih dahulu.", "error")
+        return
+    end
+
+    local charinfo = Warga.PlayerData.charinfo
+    local licenseData = {
+        type = 'license',
+        cardType = 'weapon_license',
+        cardLabel = Config.CardTypes.weapon_license.label,
+        citizenid = Warga.PlayerData.citizenid,
+        nik = Warga.PlayerData.citizenid,
+        nama = ('%s %s'):format(charinfo.firstname, charinfo.lastname):upper(),
+        ttl = ('LOS SANTOS, %s'):format(charinfo.birthdate),
+        gender = (charinfo.gender == 0 and 'LAKI-LAKI' or 'PEREMPUAN'),
+        fotourl = fotoUrl,
+        birthdate = charinfo.birthdate,
+        expires = expiresDate,
+        lastExtendedAt = nil,
+        issuerName = ('%s %s'):format(Petugas.PlayerData.charinfo.firstname, Petugas.PlayerData.charinfo.lastname):upper(),
+        issuerJob = Petugas.PlayerData.job.label,
+    }
+
+    existingMetadata.licenses.weapon_license = licenseData
+    Warga.Functions.SetMetaData("ktpdata", existingMetadata)
+    RefreshWeaponLicenseItem(targetId, expiresDate)
+
+    TriggerClientEvent('QBCore:Notify', src, "Lisensi senjata untuk " .. licenseData.nama .. " berhasil dibuat.", "success")
+    TriggerClientEvent('QBCore:Notify', targetId, "Lisensi senjata Anda telah dibuat oleh petugas.", "success")
+end)
+
+RegisterNetEvent('medalixt_identitas:server:perpanjangLisensiSenjata', function(targetId)
+    local src = source
+    local Petugas = QBCore.Functions.GetPlayer(src)
+    if not Petugas or Petugas.PlayerData.job.name ~= 'police' then return end
+
+    local Warga = QBCore.Functions.GetPlayer(targetId)
+    if not Warga then
+        TriggerClientEvent('QBCore:Notify', src, "ID Warga tidak ditemukan.", "error")
+        return
+    end
+
+    if #(GetEntityCoords(GetPlayerPed(src)) - GetEntityCoords(GetPlayerPed(targetId))) > 5.0 then
+        TriggerClientEvent('QBCore:Notify', src, "Warga terlalu jauh.", "error")
+        return
+    end
+
+    local ktpMeta = NormalizeKtpMetadata(Warga.PlayerData.metadata.ktpdata)
+    local oldLicenseData = ktpMeta.licenses.weapon_license
+    if not oldLicenseData then
+        TriggerClientEvent('QBCore:Notify', src, "Warga ini belum memiliki lisensi senjata.", "error")
+        return
+    end
+
+    local cooldownDays = tonumber(Config.CooldownPerpanjangLisensiSenjataHari) or 7
+    local today = TodayString()
+    local nextExtendDate = oldLicenseData.lastExtendedAt and AddDaysToDate(oldLicenseData.lastExtendedAt, cooldownDays)
+    if nextExtendDate and today < nextExtendDate then
+        TriggerClientEvent('QBCore:Notify', src, "Lisensi senjata hanya dapat diperpanjang seminggu sekali.", "error")
+        return
+    end
+
+    local extendDays = tonumber(Config.PerpanjangLisensiSenjataHari) or 7
+    local baseDate = oldLicenseData.expires
+    if not IsValidDateString(baseDate) or baseDate < today then
+        baseDate = today
+    end
+
+    local newLicenseData = CopyTable(oldLicenseData)
+    newLicenseData.expires = AddDaysToDate(baseDate, extendDays)
+    newLicenseData.lastExtendedAt = today
+    newLicenseData.issuerName = ('%s %s'):format(Petugas.PlayerData.charinfo.firstname, Petugas.PlayerData.charinfo.lastname):upper()
+    newLicenseData.issuerJob = Petugas.PlayerData.job.label
+
+    ktpMeta.licenses.weapon_license = newLicenseData
+    Warga.Functions.SetMetaData("ktpdata", ktpMeta)
+    RefreshWeaponLicenseItem(targetId, newLicenseData.expires)
+    TriggerClientEvent('medalixt_identitas:client:updateKtpData', targetId, newLicenseData, 'weapon_license')
+
+    TriggerClientEvent('QBCore:Notify', src, "Lisensi senjata untuk " .. newLicenseData.nama .. " berhasil diperpanjang.", "success")
+    TriggerClientEvent('QBCore:Notify', targetId, "Lisensi senjata Anda telah diperpanjang oleh petugas.", "success")
 end)
 
 RegisterNetEvent('medalixt_identitas:server:perpanjangKtpOlehPetugas', function(targetId, durasiBulan)

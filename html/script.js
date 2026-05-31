@@ -6,12 +6,13 @@ window.addEventListener('message', function(event) {
         const ktpData = item.data;
         const cardType = ktpData.cardType || 'ktp';
         const cardLabel = ktpData.cardLabel || (cardType === 'ktp' ? 'HELHEIM' : cardType.toUpperCase());
+        const isWeaponLicense = cardType === 'weapon_license';
 
         container.className = '';
         container.classList.add(`card-${cardType}`);
         if (cardType !== 'ktp') container.classList.add('has-ttl');
         
-        document.getElementById('card-header').innerText = cardType === 'ktp' ? 'KARTU TANDA PENDUDUK' : 'KARTU TANDA ANGGOTA';
+        document.getElementById('card-header').innerText = isWeaponLicense ? 'LISENSI SENJATA' : (cardType === 'ktp' ? 'KARTU TANDA PENDUDUK' : 'KARTU TANDA ANGGOTA');
         document.getElementById('card-subtitle').innerText = cardType === 'ktp' ? 'HELHEIM' : cardLabel;
 
         document.getElementById('nama-value').innerText = ktpData.nama || 'N/A';
@@ -20,28 +21,31 @@ window.addEventListener('message', function(event) {
         document.getElementById('ttl-value').innerText = ktpData.ttl || 'N/A';
         document.getElementById('gender-value').innerText = ktpData.gender || 'N/A';
 
-        if (cardType === 'ktp') {
-            document.getElementById('pekerjaan-value').innerText = ktpData.pekerjaan || 'TIDAK BEKERJA';
-            document.getElementById('kewarganegaraan-value').innerText = ktpData.nationality || 'INDONESIA';
-            const berlakuEl = document.getElementById('berlaku-value');
+        const berlakuEl = document.getElementById('berlaku-value');
+        berlakuEl.classList.remove('expired');
+        if (cardType === 'ktp' || isWeaponLicense) {
+            if (cardType === 'ktp') {
+                document.getElementById('pekerjaan-value').innerText = ktpData.pekerjaan || 'TIDAK BEKERJA';
+                document.getElementById('kewarganegaraan-value').innerText = ktpData.nationality || 'INDONESIA';
+            }
             if (ktpData.expires) {
                 const today = new Date();
-                const expiryDate = new Date(ktpData.expires);
+                const expiryDate = new Date(`${ktpData.expires}T00:00:00`);
                 today.setHours(0, 0, 0, 0);
                 if (expiryDate < today) {
-                    berlakuEl.innerText = 'KADALUARSA';
+                    berlakuEl.innerText = isWeaponLicense ? 'TIDAK BERLAKU' : 'KADALUARSA';
                     berlakuEl.classList.add('expired');
                 } else {
                     const day = String(expiryDate.getDate()).padStart(2, '0');
                     const month = String(expiryDate.getMonth() + 1).padStart(2, '0');
                     const year = expiryDate.getFullYear();
                     berlakuEl.innerText = `${day}-${month}-${year}`;
-                    berlakuEl.classList.remove('expired');
                 }
             } else {
-                berlakuEl.innerText = 'SEUMUR HIDUP';
-                berlakuEl.classList.remove('expired');
+                berlakuEl.innerText = cardType === 'ktp' ? 'SEUMUR HIDUP' : 'TIDAK BERLAKU';
+                if (isWeaponLicense) berlakuEl.classList.add('expired');
             }
+
             const creatorFullName = ktpData.pejabatNama || 'ADMIN';
             document.getElementById('pejabat-jabatan').innerText = ktpData.pejabatJabatan || 'PETUGAS';
             document.getElementById('pejabat-nama').innerText = creatorFullName;

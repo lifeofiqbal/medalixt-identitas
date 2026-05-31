@@ -3,6 +3,7 @@ local lib = lib or exports.ox_lib
 local spawnedPeds, isKtpVisible = {}, false
 local LicenseTypeLabels = {
     police = 'POLICE',
+    weapon_license = 'LISENSI SENJATA',
     ambulance = 'AMBULANCE',
     mechanic = 'MEKANIK',
     pedagang = 'PEDAGANG',
@@ -75,6 +76,25 @@ local function GetJobRank(job)
         end
     end
     return tostring(job.grade or '---')
+end
+
+local function SetLocalCardMetadata(cardType, cardData)
+    local pData = QBCore.Functions.GetPlayerData()
+    pData.metadata = pData.metadata or {}
+    local metadata = pData.metadata.ktpdata
+
+    if not metadata or (not metadata.ktp and not metadata.licenses) then
+        metadata = { ktp = cardType == 'ktp' and cardData or metadata, licenses = {} }
+    end
+
+    metadata.licenses = metadata.licenses or {}
+    if cardType == 'ktp' then
+        metadata.ktp = cardData
+    else
+        metadata.licenses[cardType] = cardData
+    end
+
+    pData.metadata.ktpdata = metadata
 end
 
 RegisterNetEvent('medalixt_identitas:client:executeShowKtp', function(data)
@@ -235,6 +255,21 @@ RegisterNetEvent('medalixt_identitas:client:openMainMenu', function()
                 args = { cardType = cardType }
             })
         end
+
+        if jobName == 'police' then
+            table.insert(options, {
+                title = 'Buat Lisensi Senjata',
+                metadata = { 'Buatkan lisensi senjata untuk warga.' },
+                icon = 'fas fa-id-card',
+                event = 'medalixt_identitas:client:startBuatLisensiSenjata'
+            })
+            table.insert(options, {
+                title = 'Perpanjang Lisensi Senjata',
+                metadata = { 'Perpanjangan hanya dapat dilakukan seminggu sekali.' },
+                icon = 'fas fa-file-invoice',
+                event = 'medalixt_identitas:client:startPerpanjangLisensiSenjata'
+            })
+        end
     end
 
     table.insert(options, {
@@ -252,6 +287,34 @@ RegisterNetEvent('medalixt_identitas:client:openMainMenu', function()
         options = options
     })
     lib.showContext('medalixt_identitas_main_menu')
+end)
+
+RegisterNetEvent('medalixt_identitas:client:startBuatLisensiSenjata', function()
+    local dialog = lib.inputDialog('Buat Lisensi Senjata', {
+        { type = 'number', label = 'ID Server Warga', required = true },
+        { type = 'input', label = 'URL Foto Warga (kosongkan untuk pakai foto KTP)', required = false },
+        { type = 'input', label = 'Berlaku Hingga (Contoh: 2026-12-31)', required = true },
+    })
+    if not dialog then return end
+
+    local targetid = tonumber(dialog[1])
+    local fotourl = dialog[2]
+    local expires = dialog[3]
+    if targetid and fotourl and expires then
+        TriggerServerEvent('medalixt_identitas:server:buatLisensiSenjata', targetid, fotourl, expires)
+    end
+end)
+
+RegisterNetEvent('medalixt_identitas:client:startPerpanjangLisensiSenjata', function()
+    local dialog = lib.inputDialog('Perpanjang Lisensi Senjata', {
+        { type = 'number', label = 'ID Server Warga', required = true },
+    })
+    if not dialog then return end
+
+    local targetid = tonumber(dialog[1])
+    if targetid then
+        TriggerServerEvent('medalixt_identitas:server:perpanjangLisensiSenjata', targetid)
+    end
 end)
 
 RegisterNetEvent('medalixt_identitas:client:startBuatKartuAnggota', function(cardData)
@@ -329,8 +392,6 @@ RegisterNetEvent('medalixt_identitas:client:startUbahDataKependudukan', function
     end
 end)
 
-RegisterNetEvent('medalixt_identitas:client:updateKtpData', function(newKtpData)
-    local pData = QBCore.Functions.GetPlayerData()
-    pData.metadata.ktpdata = newKtpData
+RegisterNetEvent('medalixt_identitas:client:updateKtpData', function(newKtpData, cardType)
+    SetLocalCardMetadata(cardType or (newKtpData and newKtpData.cardType) or 'ktp', newKtpData)
 end)
-
