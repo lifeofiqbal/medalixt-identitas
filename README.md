@@ -1,3 +1,5 @@
+SUPPORT : https://saweria.co/medalixt
+
 # medalixt_identitas
 
 `medalixt_identitas` adalah resource identitas untuk server QBCore/Qbox yang menyediakan layanan pembuatan dan penggunaan kartu identitas warga, kartu tanda anggota job, serta lisensi senjata berbasis item ox_inventory.
